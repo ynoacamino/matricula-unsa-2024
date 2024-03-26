@@ -18,7 +18,9 @@ const findText = async () => {
   let innerText = '';
 
   try {
-    const browser = await pupperteer.launch();
+    const browser = await pupperteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
     const page = await browser.newPage();
     await page.goto('http://extranet.unsa.edu.pe/sisacad/talonpago_pregrado_a_nuevo/');
 
