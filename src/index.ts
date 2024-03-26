@@ -51,6 +51,6 @@ const findText = async () => {
   }
 };
 
-cron.schedule('* * * * *', findText);
+cron.schedule('*/10 * * * *', findText);
 
 console.log('Cron job started');
