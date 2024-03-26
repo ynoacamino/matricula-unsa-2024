@@ -3,11 +3,16 @@ import pupperteer from 'puppeteer';
 import 'dotenv/config';
 import twilio from 'twilio';
 
-const numbers = [
+const NUMBERS = [
   '+51935761921',
-  // '+51963291911',
-  // '+51923212867',
+  '+51963291911',
+  '+51923212867',
 ];
+
+const TEXTS = {
+  word: 'SISTEMA',
+  text: 'La carrera profesional de Ingeniería de Sistemas ya está disponible. Visita: http://extranet.unsa.edu.pe/sisacad/talonpago_pregrado_a_nuevo/ para matricularte.',
+};
 
 const findText = async () => {
   const browser = await pupperteer.launch();
@@ -18,12 +23,9 @@ const findText = async () => {
 
   const bodyContent = await page.evaluate(() => document.querySelector('select').innerText);
 
-  const TEXTS = {
-    word: 'SISTEMA',
-    text: 'La carrera profesional de Ingeniería de Sistemas ya está disponible. Visita: http://extranet.unsa.edu.pe/sisacad/talonpago_pregrado_a_nuevo/ para matricularte.',
-  };
-
   const match = bodyContent.includes(TEXTS.word);
+
+  browser.close();
 
   if (!match) {
     console.log('Aun no esta lista la matricula', (new Date()).toLocaleString());
@@ -35,13 +37,14 @@ const findText = async () => {
   const client = twilio(ACCOUNT_SID, AUTH_TOKEN);
 
   try {
-    const messages = numbers.map(async (number) => client.messages.create({
+    const messages = NUMBERS.map(async (number) => client.messages.create({
       body: TEXTS.text,
       from: 'whatsapp:+14155238886',
       to: `whatsapp:${number}`,
     }));
 
     const sends = await Promise.all(messages);
+
     sends.forEach((send) => console.log(send.direction, send.status, send.sid));
   } catch (error) {
     console.error(error);
