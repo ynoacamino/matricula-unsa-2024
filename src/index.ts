@@ -38,7 +38,7 @@ const findText = async () => {
 
   try {
     const messages = NUMBERS.map(async (number) => client.messages.create({
-      body: TEXTS.text,
+      body: 'test',
       from: 'whatsapp:+14155238886',
       to: `whatsapp:${number}`,
     }));
@@ -51,6 +51,17 @@ const findText = async () => {
   }
 };
 
-cron.schedule('*/10 * * * *', findText);
+cron.schedule('* * * * *', async () => {
+  console.log('Running a task every 10 minutes');
+
+  const { ACCOUNT_SID, AUTH_TOKEN } = process.env;
+
+  const client = twilio(ACCOUNT_SID, AUTH_TOKEN);
+  await client.messages.create({
+    body: TEXTS.text,
+    from: 'whatsapp:+14155238886',
+    to: `whatsapp:${NUMBERS[0]}`,
+  });
+});
 
 console.log('Cron job started');
