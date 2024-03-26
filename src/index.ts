@@ -5,8 +5,8 @@ import twilio from 'twilio';
 
 const NUMBERS = [
   '+51935761921',
-  // '+51963291911',
-  // '+51923212867',
+  '+51963291911',
+  '+51923212867',
 ];
 
 const TEXTS = {
@@ -15,8 +15,6 @@ const TEXTS = {
 };
 
 const findText = async () => {
-  let innerText = '';
-
   try {
     const browser = await pupperteer.launch({
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -27,7 +25,6 @@ const findText = async () => {
     await page.waitForSelector('body');
 
     const bodyContent = await page.evaluate(() => document.querySelector('select').innerText);
-    innerText = bodyContent;
 
     const match = bodyContent.includes(TEXTS.word);
 
@@ -47,7 +44,7 @@ const findText = async () => {
 
   try {
     const messages = NUMBERS.map(async (number) => client.messages.create({
-      body: innerText,
+      body: TEXTS.text,
       from: 'whatsapp:+14155238886',
       to: `whatsapp:${number}`,
     }));
@@ -60,6 +57,6 @@ const findText = async () => {
   }
 };
 
-cron.schedule('* * * * *', findText);
+cron.schedule('*/10 * * * *', findText);
 
 console.log('Cron job started');
