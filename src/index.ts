@@ -5,8 +5,8 @@ import twilio from 'twilio';
 
 const NUMBERS = [
   '+51935761921',
-  '+51963291911',
-  '+51923212867',
+  // '+51963291911',
+  // '+51923212867',
 ];
 
 const TEXTS = {
@@ -15,21 +15,28 @@ const TEXTS = {
 };
 
 const findText = async () => {
-  const browser = await pupperteer.launch();
-  const page = await browser.newPage();
-  await page.goto('http://extranet.unsa.edu.pe/sisacad/talonpago_pregrado_a_nuevo/');
+  let innerText = '';
 
-  await page.waitForSelector('body');
+  try {
+    const browser = await pupperteer.launch();
+    const page = await browser.newPage();
+    await page.goto('http://extranet.unsa.edu.pe/sisacad/talonpago_pregrado_a_nuevo/');
 
-  const bodyContent = await page.evaluate(() => document.querySelector('select').innerText);
+    await page.waitForSelector('body');
 
-  const match = bodyContent.includes(TEXTS.word);
+    const bodyContent = await page.evaluate(() => document.querySelector('select').innerText);
+    innerText = bodyContent;
 
-  browser.close();
+    const match = bodyContent.includes(TEXTS.word);
 
-  if (!match) {
-    console.log('Aun no esta lista la matricula', (new Date()).toLocaleString());
-    return;
+    browser.close();
+
+    if (!match) {
+      console.log('Aun no esta lista la matricula', (new Date()).toLocaleString());
+      return;
+    }
+  } catch (error) {
+    console.error(error);
   }
 
   const { ACCOUNT_SID, AUTH_TOKEN } = process.env;
@@ -38,7 +45,7 @@ const findText = async () => {
 
   try {
     const messages = NUMBERS.map(async (number) => client.messages.create({
-      body: 'test',
+      body: innerText,
       from: 'whatsapp:+14155238886',
       to: `whatsapp:${number}`,
     }));
@@ -51,17 +58,6 @@ const findText = async () => {
   }
 };
 
-cron.schedule('* * * * *', async () => {
-  console.log('Running a task every 10 minutes');
-
-  const { ACCOUNT_SID, AUTH_TOKEN } = process.env;
-
-  const client = twilio(ACCOUNT_SID, AUTH_TOKEN);
-  await client.messages.create({
-    body: TEXTS.text,
-    from: 'whatsapp:+14155238886',
-    to: `whatsapp:${NUMBERS[0]}`,
-  });
-});
+cron.schedule('* * * * *', findText);
 
 console.log('Cron job started');
