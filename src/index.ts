@@ -36,6 +36,7 @@ const findText = async () => {
     }
   } catch (error) {
     console.error(error);
+    return;
   }
 
   const { ACCOUNT_SID, AUTH_TOKEN } = process.env;
